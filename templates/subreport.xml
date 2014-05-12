@@ -1,0 +1,7 @@
+	<subreport>
+	    <reportElement uuid="%uuid%" positionType="Float" x="0" y="%position%" width="555" height="1"/>
+	    <connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+	    <subreportExpression class="net.sf.jasperreports.engine.JasperReport">
+	        <![CDATA[net.sf.jasperreports.engine.JasperCompileManager.compileReport($P{SUBREPORT_DIR} + "%sub_report_name%")]]>
+	    </subreportExpression>
+	</subreport>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="%node_name% %description%" language="groovy" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="%uuid%">
+    <property name="ireport.zoom" value="1.0"/>
+    <property name="ireport.x" value="0"/>
+    <property name="ireport.y" value="238"/>
+    <style name="Crosstab Data Text" hAlign="Center"/>
+    <subDataset name="CPU" uuid="%uuid%">
+        <queryString language="SQL">
+            <![CDATA[SELECT
+    object_properties.name AS server_name,
+    items.name AS parameter,
+    idata_%node_id%.idata_value AS value,
+    to_timestamp(idata_%node_id%.idata_timestamp) AS date
+FROM
+    object_properties
+INNER JOIN
+    items
+ON
+    object_properties.object_id = items.node_id%subquery%
+INNER JOIN
+    idata_%node_id%
+ON
+    items.item_id = idata_%node_id%.item_id AND idata_%node_id%.idata_timestamp > extract (epoch from ((now() - interval '%interval%')::timestamp)) AND idata_%node_id%.idata_value ~ '^[0-9]+'
+ORDER BY
+    date]]>
+        </queryString>
+        <field name="server_name" class="java.lang.String"/>
+        <field name="parameter" class="java.lang.String"/>
+        <field name="value" class="java.lang.Float"/>
+        <field name="date" class="java.sql.Timestamp"/>
+        <group name="server_name">
+            <groupExpression><![CDATA[$F{server_name}]]></groupExpression>
+        </group>
+    </subDataset>
+    <queryString>
+        <![CDATA[SELECT
+    object_properties.name AS server_name,
+    items.name AS parameter,
+    idata_%node_id%.idata_value AS value,
+    to_timestamp(idata_%node_id%.idata_timestamp) AS date
+FROM
+    object_properties
+INNER JOIN
+    items
+ON
+    object_properties.object_id = items.node_id%subquery2%
+INNER JOIN
+    idata_%node_id%
+ON
+    items.item_id = idata_%node_id%.item_id AND idata_%node_id%.idata_timestamp > extract (epoch from ((now() - interval '%interval%')::timestamp)) AND idata_%node_id%.idata_value ~ '^[0-9]+'
+ORDER BY
+    date]]>
+    </queryString>
+    <field name="server_name" class="java.lang.String"/>
+    <field name="parameter" class="java.lang.String"/>
+    <field name="value" class="java.lang.Float"/>
+    <field name="date" class="java.sql.Timestamp"/>
+    <group name="server_name">
+        <groupExpression><![CDATA[$F{server_name}]]></groupExpression>
+    </group>
+    <background>
+        <band splitType="Stretch"/>
+    </background>
+    <summary>
+        <band height="802" splitType="Stretch">
+            <timeSeriesChart>
+                <chart theme="default">
+                    <reportElement uuid="%uuid_v4%" x="0" y="0" width="536" height="400"/>
+                    <chartTitle>
+                        <font size="14"/>
+                        <titleExpression><![CDATA["%node_name% %description%"]]></titleExpression>
+                    </chartTitle>
+                    <chartSubtitle/>
+                    <chartLegend position="Bottom"/>
+                </chart>
+                <timeSeriesDataset timePeriod="Minute">
+                    <timeSeries>
+                        <seriesExpression><![CDATA[$F{parameter}]]></seriesExpression>
+                        <timePeriodExpression><![CDATA[$F{date}]]></timePeriodExpression>
+                        <valueExpression><![CDATA[$F{value}]]></valueExpression>
+                    </timeSeries>
+                </timeSeriesDataset>
+                <timeSeriesPlot isShowLines="true" isShowShapes="false">
+                    <plot labelRotation="0.0">
+                        <seriesColor seriesOrder="0" color="%first_color%"/>
+                        <seriesColor seriesOrder="1" color="%second_color%"/>
+                    </plot>
+                </timeSeriesPlot>
+            </timeSeriesChart>
+            <timeSeriesChart>
+                <chart>
+                    <reportElement uuid="%uuid%" x="0" y="400" width="536" height="400"/>
+                    <chartTitle/>
+                    <chartSubtitle/>
+                    <chartLegend/>
+                </chart>
+                <timeSeriesDataset timePeriod="Minute">
+                    <dataset>
+                        <datasetRun subDataset="CPU" uuid="%uuid_v4%"/>
+                    </dataset>
+                    <timeSeries>
+                        <seriesExpression><![CDATA[$F{parameter}]]></seriesExpression>
+                        <timePeriodExpression><![CDATA[$F{date}]]></timePeriodExpression>
+                        <valueExpression><![CDATA[$F{value}]]></valueExpression>
+                    </timeSeries>
+                </timeSeriesDataset>
+                <timeSeriesPlot isShowShapes="false">
+                    <plot labelRotation="0.0">
+                        <seriesColor seriesOrder="0" color="%second_color%"/>
+                        <seriesColor seriesOrder="1" color="%first_color%"/>
+                    </plot>
+                </timeSeriesPlot>
+            </timeSeriesChart>
+        </band>
+    </summary>
+</jasperReport>
